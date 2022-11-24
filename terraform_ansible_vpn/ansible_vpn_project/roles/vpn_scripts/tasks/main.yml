@@ -1,0 +1,94 @@
+--- # /roles/vpn_scripts/tasks/main.yml
+
+# https://github.com/hwdsl2/setup-ipsec-vpn#quick-start
+
+
+  - name: Display all facts known of host
+    debug:
+      var: hostvars[inventory_hostname]
+    when: show_facts
+
+
+  - name: Run the equivalent of "apt-get update"
+    apt:
+      update_cache: yes
+    become: yes
+    become_method: sudo
+
+  # - name: Update the system with "apt-get update"
+  #   shell: apt-get update;
+  #   become: yes
+  #   become_method: sudo
+
+  - name: Upgrade the system with "apt-get dist-upgrade"
+    apt:
+      upgrade: dist
+    become: yes
+    become_method: sudo
+
+  # - name: Upgrade the system with "apt-get dist-upgrade"
+  #   shell: apt-get dist-upgrade;
+  #   become: yes
+  #   become_method: sudo
+
+  - name: Send the reboot command "system will be restarting now..."
+    shell: shutdown -r +1
+    async: 0
+    poll: 0
+    ignore_errors: true
+
+    # This pause is mandatory, otherwise the existing control connection gets reused!
+  - name: Waiting the server get back connected with ansible
+    pause: seconds=110
+
+    # Now we will run a local 'ansible -m ping' on this host until it returns.
+  # - name: Trying to connect with the server "{{ inventory_hostname }}"
+  #   local_action: shell ansible -u {{ ansible_user_id }} -m ping {{ inventory_hostname }}
+  #   register: result
+  #   until: result.rc == 0
+  #   retries: 10
+  #   delay: 10
+
+  # And finally, execute 'uptime' when the host is back.
+  - name: Server is back, continuing the plays
+    shell: uptime
+
+  - name: Download the "set up an IPsec VPN server"
+    get_url:
+      url: "https://git.io/vpnsetup"
+      dest: /home/ubuntu/vpnsetup.sh
+      mode: 0755
+    become: yes
+    become_method: sudo
+
+  - name: Run the script  "/home/ubuntu/vpnsetup.sh"
+    shell: sh vpnsetup.sh
+    become: yes
+    become_method: sudo
+    register: vpn_credentials
+
+  - name: Display vpn credentials
+    debug:
+      msg: 
+        - "{{ vpn_credentials }}"
+        - "{{ vpn_credentials | type_debug }}"
+        - "{{ vpn_credentials.changed }}"
+        - "{{ ansible_date_time.epoch  }}"
+        
+  - name: copy "vpn_credentials" output into "/home/ubuntu/vpnsetup.txt"
+    copy:
+      content: "{{ vpn_credentials }}"
+      dest: /home/ubuntu/vpnsetup.txt
+      force: yes
+    become: yes
+    become_method: sudo
+
+  - name: Get the varibles from "/home/ubuntu/vpnsetup.txt"
+    shell: IPSEC_PSK=$(grep -oP '(?<="IPsec PSK: ).*' /home/ubuntu/vpnsetup.txt | cut -d',' -f1); IPSEC_PSK=$(echo "${IPSEC_PSK::-1}"); USERNAME=$(grep -oP '(?<="Username: ).*' /home/ubuntu/vpnsetup.txt | cut -d',' -f1); USERNAME=$(echo "${USERNAME::-1}"); PASSWORD=$(grep -oP '(?<="Password: ).*' /home/ubuntu/vpnsetup.txt | cut -d',' -f1); PASSWORD=$(echo "${PASSWORD::-1}"); PSK=$(cat vpnsetup.sh | grep YOUR_IPSEC_PSK=''); sudo sed -i "s/$PSK/YOUR_IPSEC_PSK=\'$IPSEC_PSK\'/" /home/ubuntu/vpnsetup.sh; USER=$(cat vpnsetup.sh | grep YOUR_USERNAME=''); sudo sed -i "s/$USER/YOUR_USERNAME=\'$USERNAME\'/" /home/ubuntu/vpnsetup.sh;  PASS=$(cat vpnsetup.sh | grep YOUR_PASSWORD=''); sudo sed -i "s/$PASS/YOUR_PASSWORD=\'$PASSWORD\'/" /home/ubuntu/vpnsetup.sh;
+    become: yes
+    become_method: sudo
+
+  - name: Run the vpn with credentials in place "/home/ubuntu/vpnsetup.txt"
+    shell: cd /home/ubuntu/; sh vpnsetup.sh
+    become: yes
+    become_method: sudo
