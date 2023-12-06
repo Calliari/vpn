@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# 4)user-data
+# needs to be ubuntu user
+sudo su ubuntu
+
+# user-data script
 sudo apt-get update -y
 sudo apt-get dist-upgrade -y
 sudo apt-get install git -y
