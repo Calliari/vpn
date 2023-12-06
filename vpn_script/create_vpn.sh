@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # needs to be ubuntu user
-sudo su ubuntu
+sudo su ubuntu && cd ~/
 
 # user-data script
 sudo apt-get update -y
