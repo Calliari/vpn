@@ -11,7 +11,7 @@ sudo apt-get install git -y
 
 
 # https://git.io/vpnsetup
-git clone https://github.com/hwdsl2/setup-ipsec-vpn
+git clone https://github.com/hwdsl2/setup-ipsec-vpn /home/ubuntu/
 
 #run the vpn script and piping the output into "vpnsetup.txt"
 sudo /home/ubuntu/setup-ipsec-vpn/vpnsetup.sh > /home/ubuntu/vpnsetup.txt
