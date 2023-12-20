@@ -47,9 +47,13 @@ sudo /home/ubuntu/vpnsetup.sh && sudo systemctl restart ipsec.service
 # Optional - schedule the VPN servrer to shutdown after 53 min, avoid charges on the GCP or AWS instances.
 sudo sed -i '/#!\/bin\/sh$/a /sbin/shutdown -P +53' /etc/rc.local
 
-# completed date-time
+# Completed date-time
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 echo "completed at: $dt" > /home/ubuntu/vpn-complete-time.txt
+
+# Rebooting the server
+sudo reboot >> /home/ubuntu/vpn-complete-time.txt;
+
 
 ### Check the Libreswan (IPsec) and xl2tpd logs for errors:
 ## Ubuntu & Debian
@@ -58,6 +62,7 @@ echo "completed at: $dt" > /home/ubuntu/vpn-complete-time.txt
 
 ### check connection with
 # tail -f /var/log/syslog
+
 
 #### ====== #### ====== #### ====== #### ====== ####
 ### Important notes:   https://git.io/vpnnotes
