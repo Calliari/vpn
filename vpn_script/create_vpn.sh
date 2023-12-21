@@ -4,7 +4,6 @@
 sudo apt-get update -y
 sudo apt-get dist-upgrade -y
 sudo apt-get install git -y
-# sudo reboot || sudo shutdown -r +1
 
 
 # https://git.io/vpnsetup
