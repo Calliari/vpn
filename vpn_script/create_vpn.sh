@@ -48,6 +48,21 @@ sudo systemctl status rc-local.service
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 echo "completed at: $dt" > /home/ubuntu/vpn-complete-time.txt
 
+
+# Prepare VPN users script (ADD or REMOVE) users
+# Note: Replace command arguments below with your own values. VPN users are stored in /etc/ppp/chap-secrets and /etc/ipsec.d/passwd. 
+# The scripts will backup these files before making changes, with .old-date-time suffix. [(/etc/ppp/chap.*) and (/etc/ipsec.d/passwd.*) ]
+cp /home/ubuntu/setup-ipsec-vpn/extras/add_vpn_user.sh /home/ubuntu/
+# sudo home/ubuntu/add_vpn_user.sh 'username_to_add' 'password'
+
+cp /home/ubuntu/setup-ipsec-vpn/extras/del_vpn_user.sh /home/ubuntu/
+# sudo home/ubuntu/del_vpn_user.sh 'username_to_delete'
+
+cp /home/ubuntu/setup-ipsec-vpn/extras/update_vpn_users.sh /home/ubuntu/
+# sudo VPN_USERS='username1 username2 ...' VPN_PASSWORDS='password1 password2 ...' bash /home/ubuntu/update_vpn_users.sh
+# or added the user to the 'update_vpn_users.sh' script section for (YOUR_USERNAMES='' YOUR_PASSWORDS='') 
+# sudo bash /home/ubuntu/update_vpn_users.sh
+
 # Rebooting the server in 3 min 
 # sudo reboot >> /home/ubuntu/vpn-complete-time.txt;
 sudo /sbin/shutdown -r 3 >> /home/ubuntu/vpn-complete-time.txt;
