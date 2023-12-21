@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# needs to be ubuntu user
-sudo su ubuntu && cd ~/
-
 # user-data script
 sudo apt-get update -y
 sudo apt-get dist-upgrade -y
@@ -52,8 +49,9 @@ sudo systemctl status rc-local.service
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 echo "completed at: $dt" > /home/ubuntu/vpn-complete-time.txt
 
-# Rebooting the server
-sudo reboot >> /home/ubuntu/vpn-complete-time.txt;
+# Rebooting the server in 3 min 
+# sudo reboot >> /home/ubuntu/vpn-complete-time.txt;
+sudo /sbin/shutdown -r 3 >> /home/ubuntu/vpn-complete-time.txt;
 
 
 ### Check the Libreswan (IPsec) and xl2tpd logs for errors:
