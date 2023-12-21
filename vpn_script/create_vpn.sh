@@ -41,11 +41,12 @@ sudo /home/ubuntu/vpnsetup.sh && sudo systemctl restart ipsec.service
 # sudo service ipsec restart && sudo service xl2tpd restart
 
 # Optional - schedule the VPN server to shut down after 53 min, to avoid charges on the GCP, AWS instances and other servers.
-sudo sed -i '/#!\/bin\/sh$/a /sbin/shutdown -P +53' /etc/rc.local
+SHUTDOWN_PATH=$(whereis shutdown | cut -d' ' -f2)
+echo -e '#!/bin/sh \n'$SHUTDOWN_PATH' -P +3 > /home/ubuntu/shutdown-60-min-output.txt' | sudo tee /etc/init.d/shutdown-60-min.sh
+sudo ln -s /etc/init.d/shutdown-60-min.sh /etc/rcS.d/
+sudo chmod +x /etc/init.d/shutdown-60-min.sh
 sudo systemctl restart rc-local.service
-## If the above is not working, it is because the new versions changed and this can be done with cron-jobs (crontab -e);
-# echo -e '#!/bin/sh \n/sbin/shutdown -P +60' >> /home/ubuntu/shutdown-60-min.sh
-echo "@reboot sh -c '/sbin/shutdown -P +3' > /home/ubuntu/shutdown-60-min-output.txt" | sudo tee -a /var/spool/cron/crontabs/root
+# sudo sed -i '/#!\/bin\/sh$/a '$SHUTDOWN_PATH' -P +53 > /home/ubuntu/shutdown-60-min-output.txt' /etc/rc.local
 
 # Completed date-time
 dt=$(date '+%d/%m/%Y %H:%M:%S');
